@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { parse } from 'papaparse';
-
-const timeout = (delay: number) => new Promise((r) => setTimeout(r, delay));
+import { db, supabase } from './db';
+import { csvsTable } from "./schema";
 
 export async function POST(request: Request) {
     // TODO: add try catch. This could fail
@@ -28,6 +28,21 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "CSV could not be parsed without error" }, { status: 400 });
     }
 
-    await timeout(2_000);
-    return NextResponse.json({ id: "csv-id" }, { status: 201 });
+    /*
+     * The name should be unique, which is not at all a constraint right now.
+     * We should generate some ID before hand and substitute the uri with that.
+     * But for now I will leave this as it is.
+     */
+    const path = file.name;
+
+    const uploadedData = await supabase.storage.from('csvs').upload(path, file);
+    if (uploadedData.error == null) {
+        return NextResponse.json({ error: "Could not upload CSV to bucket" }, { status: 500 });
+    }
+
+    // TODO: Handle SQL errors.
+    const insertedCsv = await db.insert(csvsTable).values({ name: file.name, uri: path }).returning({ insertedId: csvsTable.id });
+    const insertedCsvId = insertedCsv[0].insertedId;
+
+    return NextResponse.json({ id: insertedCsvId }, { status: 201 });
 }

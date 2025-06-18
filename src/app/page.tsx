@@ -11,8 +11,6 @@ export default function Home() {
     const [error, setError] = useState<string | undefined>(undefined);
     const [data, setData] = useState<any>();
 
-    console.log(data);
-
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
