@@ -27,6 +27,8 @@ export const getFilteredData = async (params: z.infer<typeof searchParamsSchema>
     ))
 }
 
+export type CsvRow = Awaited<ReturnType<typeof getFilteredData>>[number];
+
 export const objectSearchParamsFromUrl = (params: URLSearchParams) => {
     return {
         country: params.get("country"),

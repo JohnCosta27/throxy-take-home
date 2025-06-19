@@ -1,12 +1,46 @@
 "use client"
 
 import { useSearchParams } from "next/navigation";
-import { getFilteredData } from "./api/companies/route";
+import { CsvRow, getFilteredData } from "./api/companies/route";
 import { useEffect, useState } from "react";
+
+import {
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+} from '@tanstack/react-table'
 
 const getCompanyData = async (searchParams: URLSearchParams) => {
     return fetch(`http://localhost:3000/api/companies?${searchParams}`).then(res => res.json());
 }
+
+const columnHelper = createColumnHelper<CsvRow>()
+
+const columns = [
+    columnHelper.accessor('companyName', {
+        header: "Company Name",
+        cell: info => {
+            return info.row.original.companyName ?? <span style={{ color: 'red' }}>{info.row.original.companyNameRaw}</span>
+        },
+    }),
+    columnHelper.accessor('domain', {
+        header: "Domain",
+        cell: info => info.row.original.domain ?? <span style={{ color: 'red' }}>{info.row.original.domainRaw}</span>,
+    }),
+    columnHelper.accessor('city', {
+        header: "City",
+        cell: info => info.row.original.city ?? <span style={{ color: 'red' }}>{info.row.original.cityRaw}</span>,
+    }),
+    columnHelper.accessor('country', {
+        header: "Country",
+        cell: info => info.row.original.country ?? <span style={{ color: 'red' }}>{info.row.original.countryRaw}</span>,
+    }),
+    columnHelper.accessor('employeeSize', {
+        header: "Employee Size",
+        cell: info => info.row.original.employeeSize ?? <span style={{ color: 'red' }}>{info.row.original.employeeSizeRaw}</span>,
+    }),
+]
 
 export const Table = () => {
     const searchParams = useSearchParams();
@@ -18,10 +52,17 @@ export const Table = () => {
         setLoading(true);
         getCompanyData(searchParams).then((d) => {
             setLoading(false);
-            debugger;
             setData(d);
         })
     }, [searchParams]);
+
+    console.log(data);
+
+    const table = useReactTable({
+        data: data ?? [],
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    });
 
     if (loading) {
         return (
@@ -32,22 +73,29 @@ export const Table = () => {
     return (
         <table>
             <thead>
-                <tr>
-                    <th>Company Name</th>
-                    <th>Domain</th>
-                    <th>City</th>
-                    <th>Country</th>
-                    <th>Employee Size</th>
-                </tr>
+                {table.getHeaderGroups().map(headerGroup => (
+                    <tr key={headerGroup.id}>
+                        {headerGroup.headers.map(header => (
+                            <th key={header.id}>
+                                {header.isPlaceholder
+                                    ? null
+                                    : flexRender(
+                                        header.column.columnDef.header,
+                                        header.getContext()
+                                    )}
+                            </th>
+                        ))}
+                    </tr>
+                ))}
             </thead>
             <tbody>
-                {data?.map(d => (
-                    <tr key={d.id}>
-                        <td>{d.companyName ?? d.companyNameRaw}</td>
-                        <td>{d.domain ?? d.domainRaw}</td>
-                        <td>{d.city ?? d.cityRaw}</td>
-                        <td>{d.country ?? d.countryRaw}</td>
-                        <td>{d.employeeSize ?? d.employeeSizeRaw}</td>
+                {table.getRowModel().rows.map(row => (
+                    <tr key={row.id}>
+                        {row.getVisibleCells().map(cell => (
+                            <td key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                        ))}
                     </tr>
                 ))}
             </tbody>
