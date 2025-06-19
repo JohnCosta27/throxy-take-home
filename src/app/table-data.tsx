@@ -1,30 +1,57 @@
 "use client"
 
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { getFilteredData } from "./api/companies/route";
 import { useSearchParams } from "next/navigation";
-
-const TableDataContext = createContext<{ data: Awaited<ReturnType<typeof getFilteredData>>, refetch: () => void }>({ data: [], refetch: () => { } });
+import { createClient } from '@supabase/supabase-js';
 
 const getCompanyData = async (searchParams: URLSearchParams) => {
-    return fetch(`http://localhost:3000/api/companies?${searchParams}`).then(res => res.json());
+    return fetch(`http://localhost:3000/api/companies?${searchParams}`)
+        .then(res => res.json())
+        .then((res: Awaited<ReturnType<typeof getFilteredData>>) => {
+            return Object.fromEntries(res.map(r => [r.id, r]))
+        })
 }
 
+const TableDataContext = createContext<Awaited<ReturnType<typeof getCompanyData>>>({});
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_KEY!);
+
+await supabase.realtime.setAuth(process.env.NEXT_PUBLIC_SUPABASE_KEY!);
+
 export const TableDataProvider = ({ children }: { children: ReactNode }) => {
-    const [data, setData] = useState<Awaited<ReturnType<typeof getFilteredData>>>([]);
+    const [data, setData] = useState<Awaited<ReturnType<typeof getCompanyData>>>({});
 
     const searchParams = useSearchParams();
 
-    const refetchData = useCallback(() => {
-        getCompanyData(searchParams).then(setData)
+    useEffect(() => {
+        getCompanyData(searchParams).then(setData);
     }, [searchParams]);
 
     useEffect(() => {
-        refetchData();
-    }, [refetchData]);
+        const changes = supabase
+            .channel('csv-rows')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'csvRows',
+            }, (payload) => {
+                console.log(payload)
+                if (payload.eventType === "INSERT" || payload.eventType === 'UPDATE') {
+                    setData(d => ({
+                        ...d,
+                        [payload.new.id]: payload.new,
+                    }));
+                }
+            }).subscribe()
+
+        return () => {
+            changes.unsubscribe()
+        };
+    }, []);
 
     return (
-        <TableDataContext.Provider value={{ data, refetch: refetchData }}>
+        <TableDataContext.Provider value={data}>
             {children}
         </TableDataContext.Provider>
     )

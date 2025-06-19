@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { parse } from 'papaparse';
-import { db } from './db';
+import { db, supabase } from './db';
 import { csvRowsTable, csvsTable } from "./schema";
 import { InferInsertModel } from "drizzle-orm";
 
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
 
         const rowsToInsert: InferInsertModel<typeof csvRowsTable>[] = cleanedCsv.map(c => ({
             csvId: insertedCsvId,
+            status: 'pending',
 
             companyNameRaw: c.company_name,
             domainRaw: c.domain,

@@ -1,8 +1,8 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { CsvRow, getFilteredData } from "./api/companies/route";
-import { useCallback, useEffect, useState } from "react";
+import { CsvRow } from "./api/companies/route";
+import { useCallback, useMemo, useState } from "react";
 import {
     createColumnHelper,
     flexRender,
@@ -130,10 +130,12 @@ const columns = [
 
 
 export const Table = () => {
-    const { data } = useTableData();
+    const data = useTableData();
+
+    const arrayData = useMemo(() => Object.values(data), [data]);
 
     const table = useReactTable({
-        data,
+        data: arrayData,
         columns,
         getCoreRowModel: getCoreRowModel(),
         manualFiltering: true,
