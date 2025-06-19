@@ -34,6 +34,9 @@ export const csvRowsTable = pgTable("csvRows", (t) => ({
     companyNameRaw: t.text(),
     companyName: t.text(),
 
+    domainRaw: t.text(),
+    domain: t.text(),
+
     cityRaw: t.text(),
     city: t.text(),
 
