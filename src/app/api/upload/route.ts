@@ -3,7 +3,13 @@ import { parse } from 'papaparse';
 import { db } from './db';
 import { csvRowsTable, csvsTable } from "./schema";
 import { InferInsertModel } from "drizzle-orm";
-import { cleanCsv } from "../process/route";
+
+export const CSV_COLUMNS = ["company_name", "domain", "city", "country", "employee_size"] as const
+type ParsedRow = Record<(typeof CSV_COLUMNS)[number], string>;
+
+const cleanCsv = (data: unknown[]): ParsedRow[] => {
+    return data.map((d: any) => ({ company_name: d.company_name, domain: d.domain, city: d.city, country: d.country, employee_size: d.employee_size } satisfies ParsedRow))
+}
 
 export async function POST(request: Request) {
     // TODO: add try catch. This could fail
@@ -20,8 +26,7 @@ export async function POST(request: Request) {
 
     const content = await file.text();
 
-    /*
-     * Parsing is done synchronously. This could be problematic for big CSVs where streaming is more appropriate.
+    /* Parsing is done synchronously. This could be problematic for big CSVs where streaming is more appropriate.
      * However this is not the bottleneck (AI processing is), so I won't solve this problem just yet.
      */
     const parsedCsv = parse(content, { header: true });
@@ -50,6 +55,16 @@ export async function POST(request: Request) {
 
         return insertedCsvId;
     })
+
+    /* Fire and forget.
+     *
+     * This is not actually very good, and we wouldn't run this with the
+     * 10 second edge function limit. But we go.
+     */
+    fetch("http://localhost:3000/api/process", {
+        method: "POST",
+        body: JSON.stringify({ csvId: insertedCsvId }),
+    });
 
     // TODO: Handle SQL errors.
     return NextResponse.json({ id: insertedCsvId }, { status: 201 });
