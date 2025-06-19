@@ -1,6 +1,7 @@
 "use client"
 
 import { FormEvent, useState } from 'react';
+import { useTableData } from './table-data';
 
 const uploadCsv = async (formData: FormData) => {
     return fetch("http://localhost:3000/api/upload", { method: "POST", body: formData }).then(res => res.json());
@@ -9,7 +10,8 @@ const uploadCsv = async (formData: FormData) => {
 export default function Upload() {
     const [pending, setPending] = useState(false);
     const [error, setError] = useState<string | undefined>(undefined);
-    const [data, setData] = useState<any>();
+
+    const { refetch } = useTableData();
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -18,9 +20,9 @@ export default function Upload() {
 
         const formData = new FormData(e.target as HTMLFormElement);
 
-        uploadCsv(formData).then(data => {
+        uploadCsv(formData).then(() => {
+            refetch();
             setPending(false);
-            setData(data);
         }).catch(err => {
             setError(err);
         });

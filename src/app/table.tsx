@@ -23,11 +23,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-const getCompanyData = async (searchParams: URLSearchParams) => {
-
-    return fetch(`http://localhost:3000/api/companies?${searchParams}`).then(res => res.json());
-}
+import { useTableData } from "./table-data";
 
 const columnHelper = createColumnHelper<CsvRow>()
 
@@ -50,14 +46,26 @@ const useCreateQueryString = () => {
     );
 }
 
-const TextFilter = () => {
+const TextFilter = ({ name }: { name: string }) => {
+    const searchParams = useSearchParams();
     const createQueryString = useCreateQueryString();
 
+    const [open, setOpen] = useState(false);
+    const [text, setText] = useState(searchParams.get(name) ?? '');
+
     return (
-        <Popover>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger>Open</PopoverTrigger>
             <PopoverContent>
-                <input type="text" onChange={e => createQueryString('domain', e.target.value)} />
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+
+                    createQueryString(name, text);
+                    setOpen(false);
+                }}>
+                    <input type="submit" hidden />
+                    <input type="text" value={text} onChange={e => setText(e.currentTarget.value)} />
+                </form>
             </PopoverContent>
         </Popover>
     )
@@ -86,57 +94,46 @@ const DropdownFilter = ({ options }: { options: string[] }) => {
     )
 }
 
+const columns = [
+    columnHelper.accessor('companyName', {
+        header: "Company Name",
+        cell: info => {
+            return info.row.original.companyName ?? <span style={{ color: 'red' }}>{info.row.original.companyNameRaw}</span>
+        },
+    }),
+    columnHelper.accessor('domain', {
+        header: "Domain",
+        cell: info => info.row.original.domain ?? <span style={{ color: 'red' }}>{info.row.original.domainRaw}</span>,
+        meta: {
+            filterComponent: <TextFilter name="domain" />
+        }
+    }),
+    columnHelper.accessor('city', {
+        header: "City",
+        cell: info => info.row.original.city ?? <span style={{ color: 'red' }}>{info.row.original.cityRaw}</span>,
+    }),
+    columnHelper.accessor('country', {
+        header: "Country",
+        cell: info => info.row.original.country ?? <span style={{ color: 'red' }}>{info.row.original.countryRaw}</span>,
+        meta: {
+            filterComponent: <TextFilter name="country" />
+        }
+    }),
+    columnHelper.accessor('employeeSize', {
+        header: "Employee Size",
+        cell: info => info.row.original.employeeSize ?? <span style={{ color: 'red' }}>{info.row.original.employeeSizeRaw}</span>,
+        meta: {
+            filterComponent: <DropdownFilter options={['1-10', '11-50', '51-200', '201-500', '501-1 000', '1 001-5 000', '5 001-10 000', '10 000+']} />
+        }
+    }),
+]
+
+
 export const Table = () => {
-    const searchParams = useSearchParams();
-
-    const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<Awaited<ReturnType<typeof getFilteredData>> | undefined>(undefined);
-
-    // TODO: debounce this? It's going to hammer the server.
-    useEffect(() => {
-        setLoading(true);
-        getCompanyData(searchParams).then((d) => {
-            setLoading(false);
-            setData(d);
-        })
-    }, [searchParams]);
-
-    const columns = [
-        columnHelper.accessor('companyName', {
-            header: "Company Name",
-            cell: info => {
-                return info.row.original.companyName ?? <span style={{ color: 'red' }}>{info.row.original.companyNameRaw}</span>
-            },
-        }),
-        columnHelper.accessor('domain', {
-            header: "Domain",
-            cell: info => info.row.original.domain ?? <span style={{ color: 'red' }}>{info.row.original.domainRaw}</span>,
-            meta: {
-                filterComponent: <TextFilter />
-            }
-        }),
-        columnHelper.accessor('city', {
-            header: "City",
-            cell: info => info.row.original.city ?? <span style={{ color: 'red' }}>{info.row.original.cityRaw}</span>,
-        }),
-        columnHelper.accessor('country', {
-            header: "Country",
-            cell: info => info.row.original.country ?? <span style={{ color: 'red' }}>{info.row.original.countryRaw}</span>,
-            meta: {
-                filterComponent: <TextFilter />
-            }
-        }),
-        columnHelper.accessor('employeeSize', {
-            header: "Employee Size",
-            cell: info => info.row.original.employeeSize ?? <span style={{ color: 'red' }}>{info.row.original.employeeSizeRaw}</span>,
-            meta: {
-                filterComponent: <DropdownFilter options={['1-10', '11-50', '51-200', '201-500', '501-1 000', '1 001-5 000', '5 001-10 000', '10 000+']} />
-            }
-        }),
-    ]
+    const { data } = useTableData();
 
     const table = useReactTable({
-        data: data ?? [],
+        data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         manualFiltering: true,

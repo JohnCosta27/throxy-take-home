@@ -1,13 +1,16 @@
 "use server"
 
 import { Table } from './table';
+import { TableDataProvider } from './table-data';
 import Upload from './upload';
 
 export default async function Home() {
     return (
         <div>
-            <Upload />
-            <Table />
+            <TableDataProvider>
+                <Upload />
+                <Table />
+            </TableDataProvider>
         </div>
     );
 }
