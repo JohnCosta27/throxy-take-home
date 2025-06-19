@@ -1,10 +1,33 @@
-"use server"
+"use client"
 
-import { db } from "./api/upload/db"
-import { csvRowsTable } from "./api/upload/schema";
+import { useSearchParams } from "next/navigation";
+import { getFilteredData } from "./api/companies/route";
+import { useEffect, useState } from "react";
 
-export const Table = async () => {
-    const data = await db.select().from(csvRowsTable);
+const getCompanyData = async (searchParams: URLSearchParams) => {
+    return fetch(`http://localhost:3000/api/companies?${searchParams}`).then(res => res.json());
+}
+
+export const Table = () => {
+    const searchParams = useSearchParams();
+
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState<Awaited<ReturnType<typeof getFilteredData>> | undefined>(undefined);
+
+    useEffect(() => {
+        setLoading(true);
+        getCompanyData(searchParams).then((d) => {
+            setLoading(false);
+            debugger;
+            setData(d);
+        })
+    }, [searchParams]);
+
+    if (loading) {
+        return (
+            "Loading..."
+        )
+    }
 
     return (
         <table>
@@ -18,7 +41,7 @@ export const Table = async () => {
                 </tr>
             </thead>
             <tbody>
-                {data.map(d => (
+                {data?.map(d => (
                     <tr key={d.id}>
                         <td>{d.companyName ?? d.companyNameRaw}</td>
                         <td>{d.domain ?? d.domainRaw}</td>
