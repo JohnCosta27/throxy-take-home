@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/popover"
 
 const uploadCsv = async (formData: FormData) => {
-    return fetch("http://localhost:3000/api/upload", { method: "POST", body: formData }).then(res => res.json());
+    return fetch("/api/upload", { method: "POST", body: formData }).then(res => res.json());
 }
 
 export function Upload() {

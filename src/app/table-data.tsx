@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from '@supabase/supabase-js';
 
 const getCompanyData = async (searchParams: URLSearchParams) => {
-    return fetch(`http://localhost:3000/api/companies?${searchParams}`)
+    return fetch(`/api/companies?${searchParams}`)
         .then(res => res.json())
         .then((res: Awaited<ReturnType<typeof getFilteredData>>) => {
             return Object.fromEntries(res.map(r => [r.id, r]))
