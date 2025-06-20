@@ -27,7 +27,7 @@ export const TextFilter = ({ name, label }: { name: string; label: string }) => 
                 }} className="flex flex-col gap-">
                     <input type="submit" hidden />
                     <Label htmlFor="picture">{label} filter</Label>
-                    <Input type="text" onChange={e => setText(e.currentTarget.value)} />
+                    <Input type="text" value={text} onChange={e => setText(e.currentTarget.value)} />
                 </form>
             </PopoverContent>
         </Popover>
