@@ -1,9 +1,8 @@
 import { eq, InferInsertModel } from "drizzle-orm";
 import { db } from "../upload/db";
-import { csvRowsTable, csvsTable } from "../upload/schema";
+import { csvRowsTable } from "../upload/schema";
 import { NextResponse } from "next/server";
-import { parse } from "papaparse";
-import { generateObject, generateText } from 'ai';
+import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from "zod";
 import { CSV_COLUMNS } from "../upload/route";
