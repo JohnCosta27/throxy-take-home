@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     // TODO: this could fail + validation with Zod would be better.
     const { csvId } = await request.json() as ProcessBody;
 
-    await db.update(csvRowsTable).set({ status: 'processing' });
+    await db.update(csvRowsTable).set({ status: 'processing' }).where(eq(csvRowsTable.csvId, csvId));
 
     const csvRows = await db.select().from(csvRowsTable).where(eq(csvRowsTable.csvId, csvId));
 
