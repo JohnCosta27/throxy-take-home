@@ -1,9 +1,9 @@
 "use client"
 
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { getFilteredData } from "./api/companies/route";
 import { useSearchParams } from "next/navigation";
 import { createClient } from '@supabase/supabase-js';
+import type { getFilteredData } from "./api/utils";
 
 const getCompanyData = async (searchParams: URLSearchParams) => {
     return fetch(`/api/companies?${searchParams}`)
