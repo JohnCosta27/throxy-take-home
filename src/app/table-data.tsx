@@ -36,7 +36,6 @@ export const TableDataProvider = ({ children }: { children: ReactNode }) => {
                 schema: 'public',
                 table: 'csvRows',
             }, (payload) => {
-                console.log(payload)
                 if (payload.eventType === "INSERT" || payload.eventType === 'UPDATE') {
                     setData(d => ({
                         ...d,
