@@ -26,6 +26,11 @@ import {
 } from "@/components/ui/popover"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useTableData } from "./table-data";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const columnHelper = createColumnHelper<CsvRow>()
 
@@ -103,7 +108,18 @@ const EnhancedField = ({ status, rawField, field }: { status: CsvRow['status'], 
         case 'processing':
             return <span className="text-gray-700">{rawField ?? ""}</span>
         case 'processed':
-            return <span className={rawField === field ? "text-black" : "text-shadow-purple-800"}>{field ?? ""}</span>
+            return rawField === field
+                ? <span className="text-black">{field ?? ""}</span>
+                : (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <span className={rawField === field ? "text-black" : "text-purple-800"}>{field ?? ""}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Original field: {rawField}
+                        </TooltipContent>
+                    </Tooltip>
+                )
     }
 }
 
