@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { parse } from 'papaparse';
-import { db, supabase } from './db';
+import { db } from './db';
 import { csvRowsTable, csvsTable } from "./schema";
 import { InferInsertModel } from "drizzle-orm";
-
-export const CSV_COLUMNS = ["company_name", "domain", "city", "country", "employee_size"] as const
-type ParsedRow = Record<(typeof CSV_COLUMNS)[number], string>;
+import { ParsedRow } from "../types";
 
 const cleanCsv = (data: unknown[]): ParsedRow[] => {
     return data.map((d: any) => ({ company_name: d.company_name, domain: d.domain, city: d.city, country: d.country, employee_size: d.employee_size } satisfies ParsedRow))
@@ -57,7 +55,8 @@ export async function POST(request: Request) {
         return insertedCsvId;
     })
 
-    /* Fire and forget.
+    /*
+     * Fire and forget.
      *
      * This is not actually very good, and we wouldn't run this with the
      * 10 second edge function limit. But we go.
