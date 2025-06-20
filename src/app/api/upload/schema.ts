@@ -13,6 +13,8 @@ export const csvsTable = pgTable("csvs", (t) => ({
      * database, and avoid having a third system (like an S3 bucket).
      */
     file: t.text().notNull(),
+
+    createdAt: t.timestamp().notNull().defaultNow(),
 }));
 
 export const processingStatus = pgEnum('status', ['pending', 'processing', 'processed']);
@@ -49,4 +51,6 @@ export const csvRowsTable = pgTable("csvRows", (t) => ({
     employeeSize: t.text(),
 
     status: processingStatus().default('pending').notNull(),
+
+    createdAt: t.timestamp().notNull().defaultNow(),
 }));
