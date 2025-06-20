@@ -67,7 +67,7 @@ export async function POST(request: Request) {
      * This is not actually very good, and we wouldn't run this with the
      * 10 second edge function limit. But we go.
      */
-    fetch(`${process.env.BACKEND_URL}/api/process`, {
+    await fetch(`${process.env.BACKEND_URL}/api/process`, {
         method: "POST",
         body: JSON.stringify({ csvId: insertedCsvId }),
     });
