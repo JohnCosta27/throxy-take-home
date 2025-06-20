@@ -96,34 +96,43 @@ const DropdownFilter = ({ options }: { options: string[] }) => {
     )
 }
 
+const EnhancedField = ({ status, rawField, field }: { status: CsvRow['status'], rawField: string | null, field: string | null }) => {
+    switch (status) {
+        case 'pending':
+            return <span className="text-green-900">{rawField ?? ""}</span>
+        case 'processing':
+            return <span className="text-gray-700">{rawField ?? ""}</span>
+        case 'processed':
+            return <span className={rawField === field ? "text-black" : "text-shadow-purple-800"}>{field ?? ""}</span>
+    }
+}
+
 const columns = [
     columnHelper.accessor('companyName', {
         header: "Company Name",
-        cell: info => {
-            return info.row.original.companyName ?? <span style={{ color: 'red' }}>{info.row.original.companyNameRaw}</span>
-        },
+        cell: info => <EnhancedField status={info.row.original.status} rawField={info.row.original.companyNameRaw} field={info.row.original.companyName} />
     }),
     columnHelper.accessor('domain', {
         header: "Domain",
-        cell: info => info.row.original.domain ?? <span style={{ color: 'red' }}>{info.row.original.domainRaw}</span>,
+        cell: info => <EnhancedField status={info.row.original.status} rawField={info.row.original.domainRaw} field={info.row.original.domain} />,
         meta: {
             filterComponent: <TextFilter name="domain" />
         }
     }),
     columnHelper.accessor('city', {
         header: "City",
-        cell: info => info.row.original.city ?? <span style={{ color: 'red' }}>{info.row.original.cityRaw}</span>,
+        cell: info => <EnhancedField status={info.row.original.status} rawField={info.row.original.cityRaw} field={info.row.original.cityRaw} />,
     }),
     columnHelper.accessor('country', {
         header: "Country",
-        cell: info => info.row.original.country ?? <span style={{ color: 'red' }}>{info.row.original.countryRaw}</span>,
+        cell: info => <EnhancedField status={info.row.original.status} rawField={info.row.original.countryRaw} field={info.row.original.country} />,
         meta: {
             filterComponent: <TextFilter name="country" />
         }
     }),
     columnHelper.accessor('employeeSize', {
         header: "Employee Size",
-        cell: info => info.row.original.employeeSize ?? <span style={{ color: 'red' }}>{info.row.original.employeeSizeRaw}</span>,
+        cell: info => <EnhancedField status={info.row.original.status} rawField={info.row.original.employeeSizeRaw} field={info.row.original.employeeSize} />,
         meta: {
             filterComponent: <DropdownFilter options={['1-10', '11-50', '51-200', '201-500', '501-1 000', '1 001-5 000', '5 001-10 000', '10 000+']} />
         }

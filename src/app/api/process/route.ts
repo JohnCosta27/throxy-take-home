@@ -83,6 +83,7 @@ export async function POST(request: Request) {
                         city: enhancedRow.city,
                         country: enhancedRow.country,
                         employeeSize: enhancedRow.employeeSize,
+                        status: 'processed',
                     })
                     .where(eq(csvRowsTable.id, originalRow.id))
             })
