@@ -32,6 +32,8 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const columnHelper = createColumnHelper<CsvRow>()
 
@@ -54,7 +56,7 @@ const useCreateQueryString = () => {
     );
 }
 
-const TextFilter = ({ name }: { name: string }) => {
+const TextFilter = ({ name, label }: { name: string; label: string }) => {
     const searchParams = useSearchParams();
     const createQueryString = useCreateQueryString();
 
@@ -63,21 +65,30 @@ const TextFilter = ({ name }: { name: string }) => {
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger>Open</PopoverTrigger>
+            <PopoverTrigger>
+                <Chevron />
+            </PopoverTrigger>
             <PopoverContent>
                 <form onSubmit={(e) => {
                     e.preventDefault();
 
                     createQueryString(name, text);
                     setOpen(false);
-                }}>
+                }} className="flex flex-col gap-2">
                     <input type="submit" hidden />
-                    <input type="text" value={text} onChange={e => setText(e.currentTarget.value)} />
+                    <Label htmlFor="picture">{label} filter</Label>
+                    <Input type="text" onChange={e => setText(e.currentTarget.value)} />
                 </form>
             </PopoverContent>
         </Popover>
     )
 }
+
+const Chevron = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+    </svg>
+)
 
 const DropdownFilter = ({ options }: { options: string[] }) => {
     const createQueryString = useCreateQueryString();
@@ -85,7 +96,9 @@ const DropdownFilter = ({ options }: { options: string[] }) => {
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+            <DropdownMenuTrigger>
+                <Chevron />
+            </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuRadioGroup value={value} onValueChange={(v) => {
                     const valueOrUndefined = v === value ? undefined : v;
@@ -152,7 +165,7 @@ const columns = [
         header: "Domain",
         cell: info => <EnhancedField status={info.row.original.status} rawField={info.row.original.domainRaw} field={info.row.original.domain} />,
         meta: {
-            filterComponent: <TextFilter name="domain" />
+            filterComponent: <TextFilter name="domain" label="Domain" />
         }
     }),
     columnHelper.accessor('city', {
@@ -163,7 +176,7 @@ const columns = [
         header: "Country",
         cell: info => <EnhancedField status={info.row.original.status} rawField={info.row.original.countryRaw} field={info.row.original.country} />,
         meta: {
-            filterComponent: <TextFilter name="country" />
+            filterComponent: <TextFilter name="country" label="Country" />
         }
     }),
     columnHelper.accessor('employeeSize', {
