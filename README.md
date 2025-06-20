@@ -6,7 +6,8 @@
 
 ## Paper Plan
 
-![First](https://imgur.com/a/oX7t4qU)
+![First](https://i.imgur.com/wu0Kn9D_d.webp?maxwidth=1520&fidelity=grand)
+![Second](https://i.imgur.com/uYrvuKL_d.webp?maxwidth=1520&fidelity=grand)
 
 ## Architecture
 
