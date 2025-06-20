@@ -74,7 +74,7 @@ const TextFilter = ({ name, label }: { name: string; label: string }) => {
 
                     createQueryString(name, text);
                     setOpen(false);
-                }} className="flex flex-col gap-2">
+                }} className="flex flex-col gap-">
                     <input type="submit" hidden />
                     <Label htmlFor="picture">{label} filter</Label>
                     <Input type="text" onChange={e => setText(e.currentTarget.value)} />
