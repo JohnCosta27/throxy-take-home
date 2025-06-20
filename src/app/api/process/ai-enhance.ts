@@ -16,6 +16,7 @@ export const enhanceAndClean = async (data: CsvRow[]) => {
 
             Do not create extra rows.
             If a part of a row is empty, you can try and figure out what it should be, if you know it, keep it blank if you don't.
+            For the Country field, you should use the full english name: EG: US -> United States.
             
             You must preserve the order of the rows, and must always return the same number of rows as your input.
         `,
