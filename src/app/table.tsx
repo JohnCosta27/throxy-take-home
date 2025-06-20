@@ -7,6 +7,8 @@ import {
     createColumnHelper,
     flexRender,
     getCoreRowModel,
+    getSortedRowModel,
+    SortingState,
     useReactTable,
 } from '@tanstack/react-table'
 import {
@@ -126,19 +128,34 @@ const columns = [
             filterComponent: <DropdownFilter options={['1-10', '11-50', '51-200', '201-500', '501-1 000', '1 001-5 000', '5 001-10 000', '10 000+']} />
         }
     }),
+    columnHelper.accessor('createdAt', {
+        header: "Created At",
+        cell: info => new Date(info.row.original.createdAt).toISOString(),
+    })
 ]
 
 
 export const Table = () => {
     const data = useTableData();
-
     const arrayData = useMemo(() => Object.values(data), [data]);
+
+    const [sortingState, setSortingState] = useState<SortingState>([
+        {
+            id: "createdAt",
+            desc: true,
+        }
+    ]);
 
     const table = useReactTable({
         data: arrayData,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
         manualFiltering: true,
+        onSortingChange: setSortingState,
+        state: {
+            sorting: sortingState,
+        }
     });
 
     return (
