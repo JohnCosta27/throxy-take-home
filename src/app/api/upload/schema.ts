@@ -52,5 +52,7 @@ export const csvRowsTable = pgTable("csvRows", (t) => ({
 
     status: processingStatus().default('pending').notNull(),
 
+    raw_json: t.jsonb().notNull(),
+
     createdAt: t.timestamp().notNull().defaultNow(),
 }));

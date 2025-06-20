@@ -43,7 +43,7 @@ export async function POST(request: Request) {
         const insertedCsv = await tx.insert(csvsTable).values({ name: file.name, file: fileContent }).returning({ insertedId: csvsTable.id });
         const insertedCsvId = insertedCsv[0].insertedId;
 
-        const rowsToInsert: InferInsertModel<typeof csvRowsTable>[] = cleanedCsv.map(c => ({
+        const rowsToInsert: InferInsertModel<typeof csvRowsTable>[] = cleanedCsv.map((c, i) => ({
             csvId: insertedCsvId,
             status: 'pending',
 
@@ -52,6 +52,8 @@ export async function POST(request: Request) {
             cityRaw: c.city,
             countryRaw: c.country,
             employeeSizeRaw: c.employee_size,
+
+            raw_json: parsedCsv.data[i],
         }));
 
         await tx.insert(csvRowsTable).values(rowsToInsert)
