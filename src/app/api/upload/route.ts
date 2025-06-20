@@ -24,12 +24,16 @@ export async function POST(request: Request) {
 
     const content = await file.text();
 
-    /* Parsing is done synchronously. This could be problematic for big CSVs where streaming is more appropriate.
+    /*
+     * Parsing is done synchronously. This could be problematic for big CSVs where streaming is more appropriate.
      * However this is not the bottleneck (AI processing is), so I won't solve this problem just yet.
+     *
+     * @note Papaparse allows parsing errors on specific rows, so it is hard to know when parsing fully failed.
+     * Because this is a test, I will be graceful and allow more CSVs than I should.
      */
     const parsedCsv = parse(content, { header: true });
-    if (parsedCsv.errors.length > 0) {
-        return NextResponse.json({ error: "CSV could not be parsed without error" }, { status: 400 });
+    if (parsedCsv.data.length === 0) {
+        return NextResponse.json({ error: "CSV could not be parsed without error", parsingError: parsedCsv.errors }, { status: 400 });
     }
 
     const cleanedCsv = cleanCsv(parsedCsv.data);
