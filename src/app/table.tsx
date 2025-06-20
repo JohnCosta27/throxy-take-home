@@ -205,7 +205,7 @@ export const Table = () => {
 
     return (
         <CNTable>
-            <TableHeader>
+            <TableHeader className="sticky top-0 bg-white">
                 {table.getHeaderGroups().map(headerGroup => (
                     <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map(header => {

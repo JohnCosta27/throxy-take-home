@@ -6,7 +6,7 @@ import Upload from './upload';
 
 export default async function Home() {
     return (
-        <div>
+        <div className="h-screen flex flex-col p-4">
             <TableDataProvider>
                 <Upload />
                 <Table />
