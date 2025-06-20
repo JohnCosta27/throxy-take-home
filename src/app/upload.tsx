@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useState } from 'react';
+import { FormEvent } from 'react';
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -14,22 +14,12 @@ const uploadCsv = async (formData: FormData) => {
     return fetch("http://localhost:3000/api/upload", { method: "POST", body: formData }).then(res => res.json());
 }
 
-export default function Upload() {
-    const [pending, setPending] = useState(false);
-    const [error, setError] = useState<string | undefined>(undefined);
-
+export function Upload() {
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        setPending(true);
-
         const formData = new FormData(e.target as HTMLFormElement);
-
-        uploadCsv(formData).then(() => {
-            setPending(false);
-        }).catch(err => {
-            setError(err);
-        });
+        uploadCsv(formData);
     }
 
     return (

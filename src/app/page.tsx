@@ -2,7 +2,7 @@
 
 import { Table } from './table';
 import { TableDataProvider } from './table-data';
-import Upload from './upload';
+import { Upload } from './upload';
 
 export default async function Home() {
     return (
