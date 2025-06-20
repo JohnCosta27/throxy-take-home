@@ -35,7 +35,7 @@ export default function Upload() {
     return (
         <Popover>
             <PopoverTrigger>
-                <Button type="button" variant="outline">Upload File</Button>
+                Upload File
             </PopoverTrigger>
             <PopoverContent>
                 <form className="grid w-full max-w-sm items-center gap-3" onSubmit={onSubmit}>
