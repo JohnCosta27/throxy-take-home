@@ -61,9 +61,14 @@ export type ProcessBody = {
     csvId: string;
 }
 
+const timeout = (delay: number) => new Promise(r => setTimeout(r, delay));
+
 export async function POST(request: Request) {
     // TODO: this could fail + validation with Zod would be better.
     const { csvId } = await request.json() as ProcessBody;
+
+    // Simulated delay, so we can see the 'pending' state before the processing state.
+    await timeout(2_000);
 
     await db.update(csvRowsTable).set({ status: 'processing' }).where(eq(csvRowsTable.csvId, csvId));
 

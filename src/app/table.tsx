@@ -31,6 +31,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils";
 
 const columnHelper = createColumnHelper<CsvRow>()
 
@@ -104,9 +105,9 @@ const DropdownFilter = ({ options }: { options: string[] }) => {
 const EnhancedField = ({ status, rawField, field }: { status: CsvRow['status'], rawField: string | null, field: string | null }) => {
     switch (status) {
         case 'pending':
-            return <span className="text-green-900">{rawField ?? ""}</span>
-        case 'processing':
             return <span className="text-gray-700">{rawField ?? ""}</span>
+        case 'processing':
+            return <span className="text-amber-700">{rawField ?? ""}</span>
         case 'processed':
             return rawField === field
                 ? <span className="text-black">{field ?? ""}</span>
@@ -123,7 +124,26 @@ const EnhancedField = ({ status, rawField, field }: { status: CsvRow['status'], 
     }
 }
 
+const Dot = (props: Partial<HTMLSpanElement>) => {
+    return <span className={cn(props.className, "w-2 h-2 rounded-full inline-block")}></span>
+}
+
+const StatusField = ({ status }: { status: CsvRow['status'] }) => {
+    switch (status) {
+        case 'pending':
+            return <Dot className="bg-gray-700" />
+        case 'processing':
+            return <Dot className="bg-amber-700" />
+        case 'processed':
+            return <Dot className="bg-green-600" />
+    }
+}
+
 const columns = [
+    columnHelper.accessor('status', {
+        header: "Status",
+        cell: info => <StatusField status={info.row.original.status} />
+    }),
     columnHelper.accessor('companyName', {
         header: "Company Name",
         cell: info => <EnhancedField status={info.row.original.status} rawField={info.row.original.companyNameRaw} field={info.row.original.companyName} />
